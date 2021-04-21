@@ -1,0 +1,5 @@
+A script, named `build`, that carries out any build steps your solution requires. It should be in the top level directory
+   and runnable via `./build`.
+
+# Generate gRPC code
+python -m grpc_tools.protoc -I=./proto --python_out=. --grpc_python_out=. ./proto/image.proto

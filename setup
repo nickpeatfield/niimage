@@ -1,0 +1,7 @@
+A script, named `setup`, that installs any dependencies and sets up the system for your submission.  It should be in the
+   top level directory and be runnable via `./setup`.
+
+# Instal grpcio
+python -m pip install grpcio
+python -m pip install grpcio-tools
+
