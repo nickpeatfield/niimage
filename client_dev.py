@@ -1,11 +1,3 @@
-import logging
-import argparse
-
-import grpc
-
-import image_pb2
-import image_pb2_grpc
-
 """
 Your client (in the top level directory, named client) should provide an --input argument 
 that specifies the location of a jpeg or png, and an --output argument that specifies the 
@@ -15,7 +7,13 @@ text form of the rotation enum (EG: NINETY_DEG), and --mean which specifies that
 filter should be run on the input image. You don't need to support multiple of each individual 
 argument, but should allow specifying both --rotate and --mean at the same time. 
 """
+import logging
+import argparse
 
+import grpc
+
+import image_pb2
+import image_pb2_grpc
 
 if __name__ == '__main__':
     logging.basicConfig()
