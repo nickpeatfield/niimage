@@ -1,8 +1,8 @@
-#!/usr/bin/env python
 import logging
 import argparse
 import threading
 from concurrent import futures
+import imghdr
 
 import grpc
 from PIL import Image, ImageFilter
@@ -23,10 +23,11 @@ def mean_filter(img):
     img.data = image_nearest.tobytes()
     return img
 
+
 def rotate_image(img, rotation):
     """Returns rotated image"""
     if img.color:
-        image = Image.frombytes('RGB',data=img.data, size=(img.width, img.height))
+        image = Image.frombytes('RGB', data=img.data, size=(img.width, img.height))
     else:
         image = Image.frombytes('L', data=img.data, size=(img.width, img.height))
     image_rotated = image.rotate(rotation * 90, expand=1)
@@ -36,13 +37,36 @@ def rotate_image(img, rotation):
     return img
 
 
+def test_image(img):
+    """Tests if bytes are that of a image"""
+    if img.color:
+        image = Image.frombytes('RGB', data=img.data, size=(img.width, img.height))
+    else:
+        image = Image.frombytes('L', data=img.data, size=(img.width, img.height))
+    try:
+        image.verify()
+        return True
+    except Exception:
+        return False
+
+
 class NLImageServiceServicer(image_pb2_grpc.NLImageServiceServicer):
 
     def MeanFilter(self, request, context):
+        is_image = test_image(request)
+        if not is_image:
+            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+            context.set_details(' That was not an image')
+            return image_pb2.NLImage()
         image = mean_filter(request)
         return image
 
     def RotateImage(self, request, context):
+        is_image = test_image(request.image)
+        if not is_image:
+            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+            context.set_details(' That was not an image')
+            return image_pb2.NLImage()
         image = rotate_image(request.image, request.rotation)
         return image
 

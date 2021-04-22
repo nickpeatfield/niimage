@@ -1,6 +1,6 @@
-#!/usr/bin/env python
 import logging
 import argparse
+import os
 
 import grpc
 from PIL import Image
@@ -11,11 +11,17 @@ import image_pb2_grpc
 
 def get_image_formated(img_fp):
     img_pil = Image.open(img_fp)
-    if img_pil.mode == 'RGBA':  # strip the alpha
+    if len(img_pil.mode) >= 4:  # strip the alpha or convert a 4 chan color e.g. CYMK
         img_pil = img_pil.convert('RGB')
-    img_bytes = img_pil.tobytes()  # TODO work out how this is being represented
+    if len(img_pil.mode) == 1:
+        print('You are converting a single channel image')
+        color = False
+    else:
+        print('You are converting a 3-channel image')
+        color = True
+    img_bytes = img_pil.tobytes()
     image = image_pb2.NLImage(
-        color=True,
+        color=color,
         data=img_bytes,
         width=img_pil.width,
         height=img_pil.height
@@ -28,7 +34,7 @@ def save_image(img, img_output):
         image = Image.frombytes('RGB', data=img.data, size=(img.width, img.height))
     else:
         image = Image.frombytes('L', data=img.data, size=(img.width, img.height))
-    image.save(img_output, 'PNG')
+    image.save(img_output)
     return image
 
 
