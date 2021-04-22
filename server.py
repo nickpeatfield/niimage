@@ -1,7 +1,3 @@
-"""
-Your server (in the top level directory, named `server`) should provide a `--port` and `--host` which specify the
-port and host the server will bind to.
-"""
 import logging
 import argparse
 import threading
@@ -16,26 +12,38 @@ import image_pb2_grpc
 
 def mean_filter(img):
     """Returns a pixel box blured image rad1 so just nearest"""
-    image = Image.open(img)
+    if img.color:
+        image = Image.frombytes('RGB', data=img.data, size=(img.width, img.height))
+    else:
+        image = Image.frombytes('L', data=img.data, size=(img.width, img.height))
     image_nearest = image.filter(filter=ImageFilter.BoxBlur(1))
-    return image_nearest
+    img.width = image_nearest.width
+    img.height = image_nearest.height
+    img.data = image_nearest.tobytes()
+    return img
 
 def rotate_image(img, rotation):
     """Returns rotated image"""
-    image = Image.open(img)
-    image_rotated = image.rotate(rotation)
-    return image_rotated
+    if img.color:
+        image = Image.frombytes('RGB',data=img.data, size=(img.width, img.height))
+    else:
+        image = Image.frombytes('L', data=img.data, size=(img.width, img.height))
+    image_rotated = image.rotate(rotation * 90, expand=1)
+    img.width = image_rotated.width
+    img.height = image_rotated.height
+    img.data = image_rotated.tobytes()
+    return img
 
 
 class NLImageServiceServicer(image_pb2_grpc.NLImageServiceServicer):
 
     def MeanFilter(self, request, context):
-        image = mean_filter(request.image)
-        return image_pb2.NLImage(image)
+        image = mean_filter(request)
+        return image
 
     def RotateImage(self, request, context):
-        image = mean_filter(request.image)
-        return image_pb2.NLImage(image)
+        image = rotate_image(request.image, request.rotation)
+        return image
 
 
 def serve(port, host):
