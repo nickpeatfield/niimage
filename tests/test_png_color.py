@@ -1,0 +1,1 @@
+#./client --port 8000 --host localhost --input test_grpc.png --output test_ch_grpc.png --rotate NINETY_DEG --mean

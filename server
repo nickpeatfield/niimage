@@ -1,0 +1,26 @@
+#!/bin/bash
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    --port)
+    PORT="$2"
+    shift
+    shift
+    ;;
+    --host)
+    HOST="$2"
+    shift
+    shift
+    ;;
+esac
+done
+
+
+echo "PORT  = ${PORT}"
+echo "HOST     = ${HOST}"
+
+echo "Starting Server for NIImage Service"
+
+python3 server.py --port "${PORT}" --host "${HOST}"

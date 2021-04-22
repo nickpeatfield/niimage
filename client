@@ -1,0 +1,53 @@
+#!/bin/bash
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    --port)
+    PORT="$2"
+    shift
+    shift
+    ;;
+    --host)
+    HOST="$2"
+    shift
+    shift
+    ;;
+    --input)
+    INPUT="$2"
+    shift
+    shift
+    ;;
+    --output)
+    OUTPUT="$2"
+    shift
+    shift
+    ;;
+    --rotate)
+    ROTATE="$2"
+    shift
+    shift
+    ;;
+    --mean)
+    MEAN=TRUE
+    shift
+    ;;
+esac
+done
+
+
+echo "Connecting to gRPC server @ ${HOST} ${PORT}"
+echo "We are sending  ${INPUT}"
+echo "We will be saving new image as ${OUTPUT} "
+echo "The image will be rotated by ${ROTATE}"
+
+
+if [[ $MEAN = TRUE ]]
+then
+  echo "We are mean filtering the data"
+  python3 client.py --port "${PORT}" --host "${HOST}" --input "${INPUT}" --output "${OUTPUT}" --rotate "${ROTATE}" --mean
+else
+  echo "We are NOT mean filtering the data"
+  python3 client.py --port "${PORT}" --host "${HOST}" --input "${INPUT}" --output "${OUTPUT}" --rotate "${ROTATE}"
+fi

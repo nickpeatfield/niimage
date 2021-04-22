@@ -1,7 +1,10 @@
-A script, named `setup`, that installs any dependencies and sets up the system for your submission.  It should be in the
-   top level directory and be runnable via `./setup`.
-
-# Instal grpcio
-python -m pip install grpcio
-python -m pip install grpcio-tools
+#!/bin/bash
+echo "*** Getting the DIR "
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+echo "DIR is '$DIR'"
+echo "*** Update Respositories and Install requirements"
+apt-get update
+apt-get install python3 -y
+apt-get install python3-pip -y
+python3 -m pip install -r "$DIR"/requirements.txt
 

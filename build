@@ -1,33 +1,8 @@
-A script, named `build`, that carries out any build steps your solution requires. It should be in the top level directory
-   and runnable via `./build`.
-
+#!/bin/bash
+echo "*** Getting the DIR "
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+echo "DIR is '$DIR'"
 # Generate gRPC code
-python -m grpc_tools.protoc -I=./proto --python_out=. --grpc_python_out=. ./proto/image.proto
-#!/usr/bin/env python
-chmod +x client.py
-
-
-
-py_binary(
-    name = "server",
-    srcs = ["server.py"],
-    python_version = "PY3",
-    srcs_version = "PY2AND3",
-    deps = [
-        "//examples/protos:helloworld_py_pb2",
-        "//examples/protos:helloworld_py_pb2_grpc",
-        "//src/python/grpcio/grpc:grpcio",
-    ],
-)
-
-py_binary(
-    name = "client",
-    srcs = ["client.py"],
-    python_version = "PY3",
-    srcs_version = "PY2AND3",
-    deps = [
-        "//examples/protos:helloworld_py_pb2",
-        "//examples/protos:helloworld_py_pb2_grpc",
-        "//src/python/grpcio/grpc:grpcio",
-    ],
-)
+python3 -m grpc_tools.protoc -I=./proto --python_out=. --grpc_python_out=. ./proto/image.proto
+chmod +x "$DIR"/client
+chmod +x "$DIR"/server
