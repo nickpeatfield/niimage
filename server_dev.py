@@ -8,25 +8,42 @@ import threading
 from concurrent import futures
 
 import grpc
+from PIL import Image, ImageFilter
 
 import image_pb2
 import image_pb2_grpc
 
 
-class Manipulator(image_pb2_grpc.NLImageServiceServicer):
+def mean_filter(img):
+    """Returns a pixel box blured image rad1 so just nearest"""
+    image = Image.open(img)
+    image_nearest = image.filter(filter=ImageFilter.BoxBlur(1))
+    return image_nearest
+
+def rotate_image(img, rotation):
+    """Returns rotated image"""
+    image = Image.open(img)
+    image_rotated = image.rotate(rotation)
+    return image_rotated
+
+
+class NLImageServiceServicer(image_pb2_grpc.NLImageServiceServicer):
 
     def MeanFilter(self, request, context):
-        return image_pb2.NLImage(message='Manipulating, %s image' % request.image)
+        image = mean_filter(request.image)
+        return image_pb2.NLImage(image)
 
     def RotateImage(self, request, context):
-        return
+        image = mean_filter(request.image)
+        return image_pb2.NLImage(image)
 
 
 def serve(port, host):
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    image_pb2_grpc.add_NLImageServiceServicer_to_server(Manipulator(), server)
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
+    image_pb2_grpc.add_NLImageServiceServicer_to_server(NLImageServiceServicer(), server)
     server.add_insecure_port(host + ':' + port)
     server.start()
+    print(f'Server is running at {host}:{port}')
     server.wait_for_termination()
 
 
